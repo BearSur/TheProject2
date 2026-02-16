@@ -5,8 +5,13 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "Logging/LogMacros.h"
-#include "BaseCharacter.generated.h"
+#include "AbilitySystemInterface.h" 
+#include "PlayerCharacter.generated.h"
 
+class UGameplayAbility;
+class UGameplayEffect;
+class UBaseAttributeSet;
+class UAbilitySystemComponent;
 class USpringArmComponent;
 class UCameraComponent;
 class UInputAction;
@@ -19,7 +24,7 @@ DECLARE_LOG_CATEGORY_EXTERN(LogTemplateCharacter, Log, All);
  *  Implements a controllable orbiting camera
  */
 UCLASS(abstract)
-class ABaseCharacter : public ACharacter
+class APlayerCharacter : public ACharacter, public IAbilitySystemInterface
 {
 	GENERATED_BODY()
 
@@ -33,6 +38,21 @@ class ABaseCharacter : public ACharacter
 	
 protected:
 
+	virtual void BeginPlay() override;
+	virtual void PossessedBy(AController* NewController) override;
+	//GAS
+	void GiveDefaultAbilities();
+	void InitAbilitySystem();
+	virtual void InitializeAttribute();
+	
+	UPROPERTY(EditDefaultsOnly,blueprintreadwrite,Category="GAS")
+	TSubclassOf<UGameplayEffect>  DefaultAttributeEffect;//用于给attribute赋初值
+	
+	UPROPERTY(editDefaultsOnly,BlueprintReadOnly, Category="GAS")
+	TArray<TSubclassOf<UGameplayAbility>> CharacterAbilities;
+	
+	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
+	
 	/** Jump Input Action */
 	UPROPERTY(EditAnywhere, Category="Input")
 	UInputAction* JumpAction;
@@ -48,11 +68,19 @@ protected:
 	/** Mouse Look Input Action */
 	UPROPERTY(EditAnywhere, Category="Input")
 	UInputAction* MouseLookAction;
+	
+	UPROPERTY(VisibleAnywhere,BlueprintReadOnly,Category="GAS")
+	UAbilitySystemComponent* AbilitySystemComponent;
+	UPROPERTY()
+	UBaseAttributeSet* AttributeSet;
+	
+	
+	
 
 public:
 
 	/** Constructor */
-	ABaseCharacter();	
+	APlayerCharacter();	
 
 protected:
 
