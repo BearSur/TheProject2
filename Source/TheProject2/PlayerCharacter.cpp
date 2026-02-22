@@ -14,6 +14,7 @@
 #include "EnhancedInputSubsystems.h"
 #include "InputActionValue.h"
 #include "TheProject2.h"
+#include "Perception/AIPerceptionStimuliSourceComponent.h"
 
 void APlayerCharacter::BeginPlay()
 {
@@ -64,6 +65,7 @@ void APlayerCharacter::InitializeAttribute()
 			AbilitySystemComponent->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data.Get());
 		}
 	}
+	else UE_LOG(LogTemp,Error,TEXT("Default Attribute Effect not set correctly!"));
 }
 
 UAbilitySystemComponent*  APlayerCharacter::GetAbilitySystemComponent() const
@@ -110,7 +112,8 @@ APlayerCharacter::APlayerCharacter()
 	AbilitySystemComponent=CreateDefaultSubobject<UAbilitySystemComponent>(TEXT("AbilitySystemComp"));
 	AttributeSet = CreateDefaultSubobject<UBaseAttributeSet>(TEXT("AttributeSet"));
 
-
+	StimuliSourceComp=CreateDefaultSubobject<UAIPerceptionStimuliSourceComponent>(TEXT("StimuliSourceComp"));
+	StimuliSourceComp->bAutoRegister = true;
 }
 
 void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)

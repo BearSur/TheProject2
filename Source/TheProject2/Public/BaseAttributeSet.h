@@ -46,7 +46,4 @@ public:
 	UPROPERTY(BlueprintReadOnly,Category = "MetaAttributes")
 	FGameplayAttributeData Damage;
 	ATTRIBUTE_ACCESSORS(UBaseAttributeSet, Damage);
-
-	
-	
 };

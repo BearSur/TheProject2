@@ -29,16 +29,18 @@ protected:
 public:
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType,
-	                           FActorComponentTickFunction* ThisTickFunction) override;
+							   FActorComponentTickFunction* ThisTickFunction) override;
 	/**
 	 * 当被调用时，会进行一次检测然后找到最近的点
 	 */
 	UFUNCTION(BlueprintCallable)
 	void TargetLockOn();
-	
 	UFUNCTION(BlueprintCallable)
 	void QuitLockOn();
 	
+	UFUNCTION(BlueprintCallable)
+	void CalculateHitDirection(FVector HitLocation, AActor* TargetActor);
+
 	UPROPERTY(EditAnywhere,blueprintReadWrite)
 	ULockonPointComp* LockPoint;
 	UPROPERTY(EditAnywhere,blueprintReadWrite)

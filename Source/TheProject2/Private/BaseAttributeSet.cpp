@@ -17,6 +17,7 @@ void UBaseAttributeSet::PostGameplayEffectExecute(const struct FGameplayEffectMo
 	{
 		const float LocalDamage=Data.EvaluatedData.Magnitude;
 		//存储伤害值后，设置伤害值为0，以避免伤害叠加
+		UE_LOG(LogTemp,Display,TEXT("Damage: %f"),GetDamage());
 		Damage=0.0f;
 		if (LocalDamage > 0.0f)
 		{

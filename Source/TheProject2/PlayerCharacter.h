@@ -8,6 +8,7 @@
 #include "AbilitySystemInterface.h" 
 #include "PlayerCharacter.generated.h"
 
+class UAIPerceptionStimuliSourceComponent;
 class UGameplayAbility;
 class UGameplayEffect;
 class UBaseAttributeSet;
@@ -51,7 +52,8 @@ protected:
 	UPROPERTY(editDefaultsOnly,BlueprintReadOnly, Category="GAS")
 	TArray<TSubclassOf<UGameplayAbility>> CharacterAbilities;
 	
-	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
+	UPROPERTY(VisibleAnywhere,BlueprintReadOnly,Category = "AI")
+	UAIPerceptionStimuliSourceComponent* StimuliSourceComp;
 	
 	/** Jump Input Action */
 	UPROPERTY(EditAnywhere, Category="Input")
@@ -87,8 +89,7 @@ protected:
 	/** Initialize input action bindings */
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
-protected:
-
+	
 	/** Called for movement input */
 	void Move(const FInputActionValue& Value);
 
@@ -97,6 +98,8 @@ protected:
 
 public:
 
+	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
+	
 	/** Handles move inputs from either controls or UI interfaces */
 	UFUNCTION(BlueprintCallable, Category="Input")
 	virtual void DoMove(float Right, float Forward);
