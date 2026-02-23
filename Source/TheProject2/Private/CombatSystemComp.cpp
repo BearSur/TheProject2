@@ -47,7 +47,8 @@ void UCombatSystemComp::TickComponent(const float DeltaTime, const ELevelTick Ti
 		FRotator TargetRotator =  UKismetMathLibrary::FindLookAtRotation(OwnerCharacter->GetActorLocation(),LockPoint->GetComponentLocation());
 		if (OwnerCharacter->GetController())
 		{
-			OwnerController->SetControlRotation(TargetRotator);
+			//OwnerController->SetControlRotation(TargetRotator);
+			OwnerCharacter->SetActorRotation(TargetRotator);
 		}
 	}
 }
