@@ -45,6 +45,29 @@ public:
 	ULockonPointComp* LockPoint;
 	UPROPERTY(EditAnywhere,blueprintReadWrite)
 	float Radius = 1000.0f;
-	
-	
+
+	/**
+	 * 前为y轴1,后为y轴-1,左为x轴-1，右为x轴1.
+	 * @param InputDirection 
+	 * @param Front 
+	 * @param Back 
+	 * @param Left 
+	 * @param Right 
+	 * @param FrontLeft 
+	 * @param FrontRight 
+	 * @param BackLeft 
+	 * @param BackRight 
+	 * @return 
+	 */
+	UFUNCTION(BlueprintCallable)
+	UAnimMontage* SelectRollMontage(
+		FVector2D InputDirection,
+		UAnimMontage* Front,
+		UAnimMontage* Back,
+		UAnimMontage* Left,
+		UAnimMontage* Right,
+		UAnimMontage* FrontLeft,
+		UAnimMontage* FrontRight,
+		UAnimMontage* BackLeft,
+		UAnimMontage* BackRight);
 };

@@ -34,7 +34,7 @@ void UBaseAttributeSet::PostGameplayEffectExecute(const struct FGameplayEffectMo
 				{
 					// 构建事件负载 Payload
 					FGameplayEventData Payload;
-					Payload.EventTag = FGameplayTag::RequestGameplayTag(FName("Event.Death")); // 确保你在编辑器里创建了这个 Tag
+					Payload.EventTag = FGameplayTag::RequestGameplayTag(FName("Event.Character.Death")); // 确保你在编辑器里创建了这个 Tag
 					Payload.Instigator = SourceASC ? SourceASC->GetAvatarActor() : nullptr;
 					Payload.Target = TargetASC->GetAvatarActor();
 					Payload.ContextHandle = Data.EffectSpec.GetContext();
@@ -47,7 +47,6 @@ void UBaseAttributeSet::PostGameplayEffectExecute(const struct FGameplayEffectMo
 					
 					// 发送事件 (Send Gameplay Event)
 					TargetASC->HandleGameplayEvent(Payload.EventTag, &Payload);
-					
 				}
 			}
 			UE_LOG(LogTemp,Display,TEXT("Health: %f,Damage:%f"),GetHealth(),LocalDamage);

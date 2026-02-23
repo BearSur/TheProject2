@@ -37,7 +37,7 @@ void UCombatSystemComp::BeginPlay()
 
 
 // Called every frame
-void UCombatSystemComp::TickComponent(float DeltaTime, ELevelTick TickType,
+void UCombatSystemComp::TickComponent(const float DeltaTime, const ELevelTick TickType,
                                       FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
@@ -124,7 +124,7 @@ void UCombatSystemComp::QuitLockOn()
  * @param HitLocation 攻击打到角色身上的位置，绝对坐标
  * @param TargetActor 被攻击的角色
  */
-void UCombatSystemComp::CalculateHitDirection(FVector HitLocation, AActor* TargetActor)
+void UCombatSystemComp::CalculateHitDirection(const FVector HitLocation, AActor* TargetActor)
 {
 	
     //  将受击点的绝对坐标转换到角色的本地空间
@@ -186,4 +186,54 @@ void UCombatSystemComp::CalculateHitDirection(FVector HitLocation, AActor* Targe
     	FGameplayTag HitEventTag = FGameplayTag::RequestGameplayTag(FName("Event.Character.HitReact"));
     	UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(TargetActor,HitEventTag,Payload);
     }
+}
+
+UAnimMontage* UCombatSystemComp::SelectRollMontage(const FVector2D InputDirection, UAnimMontage* Front, UAnimMontage* Back,
+                                                   UAnimMontage* Left, UAnimMontage* Right, UAnimMontage* FrontLeft, UAnimMontage* FrontRight, UAnimMontage* BackLeft,
+                                                   UAnimMontage* BackRight)
+{
+	if (InputDirection.IsNearlyZero())
+	{
+		return Front;
+	}
+	
+	FVector2D Dir(InputDirection.X, InputDirection.Y);
+	Dir.Normalize();
+
+
+	float Angle = FMath::RadiansToDegrees(FMath::Atan2(Dir.Y, Dir.X));
+
+
+	if (Angle >= -22.5f && Angle < 22.5f)
+	{
+		return Right;       // 右 (0度附近)
+	}
+	else if (Angle >= 22.5f && Angle < 67.5f)
+	{
+		return FrontRight;  // 右前 (45度附近)
+	}
+	else if (Angle >= 67.5f && Angle < 112.5f)
+	{
+		return Front;       // 前 (90度附近)
+	}
+	else if (Angle >= 112.5f && Angle < 157.5f)
+	{
+		return FrontLeft;   // 左前 (135度附近)
+	}
+	else if (Angle >= -67.5f && Angle < -22.5f)
+	{
+		return BackRight;   // 右后 (-45度附近)
+	}
+	else if (Angle >= -112.5f && Angle < -67.5f)
+	{
+		return Back;        // 后 (-90度附近)
+	}
+	else if (Angle >= -157.5f && Angle < -112.5f)
+	{
+		return BackLeft;    // 左后 (-135度附近)
+	}
+	else
+	{
+		return Left;        // 左 (180或-180度附近，Angle >= 157.5f 或 Angle < -157.5f)
+	}
 }
