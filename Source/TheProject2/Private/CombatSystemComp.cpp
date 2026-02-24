@@ -8,7 +8,7 @@
 #include "LockonPointComp.h"
 #include "GameFramework/Character.h"
 #include "AbilitySystemBlueprintLibrary.h"
-#include "HitboxData.h"
+#include "CustomEnum.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
 
@@ -190,6 +190,24 @@ void UCombatSystemComp::CalculateHitDirection(const FVector HitLocation, AActor*
     }
 }
 
+void UCombatSystemComp::DoDirectionalRoll(FVector2D InputValue)
+{
+	// 3. 构建 Gameplay Event Data
+	FGameplayEventData Payload;
+	Payload.EventTag = FGameplayTag::RequestGameplayTag(FName("Event.Character.Roll"));
+	Payload.Instigator = OwnerCharacter;
+	Payload.Target = OwnerCharacter;
+    
+	// 4. 将 FVector2D 转换为 FVector，并存入 TargetData
+	// 使用 LocationInfo 是 GAS 传递位置/向量数据的标准方式
+	FGameplayAbilityTargetData_LocationInfo* LocationData = new FGameplayAbilityTargetData_LocationInfo();
+	LocationData->TargetLocation.LocationType = EGameplayAbilityTargetingLocationType::LiteralTransform;
+	// 将 2D 向量存入 Transform 的 Location 中
+	LocationData->TargetLocation.LiteralTransform = FTransform(FVector(InputValue.X, InputValue.Y, 0.f));
+	Payload.TargetData.Add(LocationData);
+	UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(OwnerCharacter, Payload.EventTag, Payload);
+}
+
 UAnimMontage* UCombatSystemComp::SelectRollMontage(const FVector2D InputDirection, UAnimMontage* Front, UAnimMontage* Back,
                                                    UAnimMontage* Left, UAnimMontage* Right, UAnimMontage* FrontLeft, UAnimMontage* FrontRight, UAnimMontage* BackLeft,
                                                    UAnimMontage* BackRight)
@@ -237,5 +255,52 @@ UAnimMontage* UCombatSystemComp::SelectRollMontage(const FVector2D InputDirectio
 	else
 	{
 		return Left;        // 左 (180或-180度附近，Angle >= 157.5f 或 Angle < -157.5f)
+	}
+}
+
+ERollAnimationType UCombatSystemComp::GetRollDirection(const FVector2D InputDirection)
+{
+	// 如果没有输入，默认返回向前翻滚
+	if (InputDirection.IsNearlyZero())
+	{
+		return ERollAnimationType::Front;
+	}
+    
+	FVector2D Dir(InputDirection.X, InputDirection.Y);
+	Dir.Normalize();
+
+	float Angle = FMath::RadiansToDegrees(FMath::Atan2(Dir.Y, Dir.X));
+
+	if (Angle >= -22.5f && Angle < 22.5f)
+	{
+		return ERollAnimationType::Right;       // 右 (0度附近)
+	}
+	else if (Angle >= 22.5f && Angle < 67.5f)
+	{
+		return ERollAnimationType::FrontRight;  // 右前 (45度附近)
+	}
+	else if (Angle >= 67.5f && Angle < 112.5f)
+	{
+		return ERollAnimationType::Front;       // 前 (90度附近)
+	}
+	else if (Angle >= 112.5f && Angle < 157.5f)
+	{
+		return ERollAnimationType::FrontLeft;   // 左前 (135度附近)
+	}
+	else if (Angle >= -67.5f && Angle < -22.5f)
+	{
+		return ERollAnimationType::BackRight;   // 右后 (-45度附近)
+	}
+	else if (Angle >= -112.5f && Angle < -67.5f)
+	{
+		return ERollAnimationType::Back;        // 后 (-90度附近)
+	}
+	else if (Angle >= -157.5f && Angle < -112.5f)
+	{
+		return ERollAnimationType::BackLeft;    // 左后 (-135度附近)
+	}
+	else
+	{
+		return ERollAnimationType::Left;        // 左 (180或-180度附近，Angle >= 157.5f 或 Angle < -157.5f)
 	}
 }

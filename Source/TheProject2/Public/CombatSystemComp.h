@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "CustomEnum.h"
 #include "Components/ActorComponent.h"
 #include "CombatSystemComp.generated.h"
 
@@ -45,7 +46,10 @@ public:
 	ULockonPointComp* LockPoint;
 	UPROPERTY(EditAnywhere,blueprintReadWrite)
 	float Radius = 1000.0f;
-
+	
+	UFUNCTION(BlueprintCallable)
+	void DoDirectionalRoll(FVector2D InputValue);
+	
 	/**
 	 * 前为y轴1,后为y轴-1,左为x轴-1，右为x轴1.
 	 * @param InputDirection 
@@ -70,4 +74,7 @@ public:
 		UAnimMontage* FrontRight,
 		UAnimMontage* BackLeft,
 		UAnimMontage* BackRight);
+	
+	UFUNCTION(BlueprintCallable, Category = "Combat")
+	ERollAnimationType GetRollDirection(const FVector2D InputDirection);
 };

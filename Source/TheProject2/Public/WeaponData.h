@@ -8,6 +8,7 @@
 #include "WeaponData.generated.h"
 
 
+enum class ERollAnimationType : uint8;
 enum class EWeaponAnimationType : uint8;
 class USkillData;
 /**
@@ -30,5 +31,7 @@ public:
 	//问题：如果使用前向声明FGameplayTag，会出问题，为什么
 	UPROPERTY(EditAnywhere,BlueprintReadOnly)
 	TMap<FGameplayTag,UAnimMontage*> TagsToAnimationMap;
+	UPROPERTY(EditAnywhere,BlueprintReadOnly)
+	TMap<ERollAnimationType,UAnimMontage*> RollAnimationMap;
 	
 };
