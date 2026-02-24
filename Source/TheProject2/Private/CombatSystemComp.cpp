@@ -2,12 +2,13 @@
 
 
 #include "Public/CombatSystemComp.h"
-#include "AbilitySystemComponent.h"
+
 #include "Engine/OverlapResult.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "LockonPointComp.h"
 #include "GameFramework/Character.h"
 #include "AbilitySystemBlueprintLibrary.h"
+#include "HitboxData.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
 

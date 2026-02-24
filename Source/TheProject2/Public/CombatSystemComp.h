@@ -6,7 +6,7 @@
 #include "Components/ActorComponent.h"
 #include "CombatSystemComp.generated.h"
 
-
+class UHitboxData;
 class ULockonPointComp;
 
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent),Blueprintable)
