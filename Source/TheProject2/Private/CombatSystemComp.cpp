@@ -42,7 +42,7 @@ void UCombatSystemComp::TickComponent(const float DeltaTime, const ELevelTick Ti
                                       FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-	if (LockPoint)
+	if (LockPoint&&LockPoint->IsLockable)
 	{
 		DrawDebugSphere(GetWorld(),LockPoint->GetComponentLocation(),30,16,FColor::Red);
 		FRotator TargetRotator =  UKismetMathLibrary::FindLookAtRotation(OwnerCharacter->GetActorLocation(),LockPoint->GetComponentLocation());
@@ -52,6 +52,7 @@ void UCombatSystemComp::TickComponent(const float DeltaTime, const ELevelTick Ti
 			OwnerCharacter->SetActorRotation(TargetRotator);
 		}
 	}
+	else 
 }
 
 
@@ -94,7 +95,7 @@ void UCombatSystemComp::TargetLockOn()
 				for (ULockonPointComp* FoundComp :CompsOnActor)
 				{
 					float CurrentWeight = FVector::DistSquared(Center, FoundComp->GetComponentLocation());
-					if (CurrentWeight < MinWeight)
+					if (FoundComp->IsLockable&&CurrentWeight < MinWeight)
 					{
 						MinWeight=CurrentWeight;
 						BestComp = FoundComp;

@@ -46,4 +46,7 @@ public:
 	UPROPERTY(BlueprintReadOnly,Category = "MetaAttributes")
 	FGameplayAttributeData Damage;
 	ATTRIBUTE_ACCESSORS(UBaseAttributeSet, Damage);
+	UPROPERTY(BlueprintReadOnly,Category = "MetaAttributes")
+	FGameplayAttributeData Healing;
+	ATTRIBUTE_ACCESSORS(UBaseAttributeSet, Healing);
 };

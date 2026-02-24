@@ -54,6 +54,24 @@ void UBaseAttributeSet::PostGameplayEffectExecute(const struct FGameplayEffectMo
 		
 		
 	}
+	else if (Data.EvaluatedData.Attribute==GetHealingAttribute())
+	{
+		const float LocalHealing=Data.EvaluatedData.Magnitude;
+		Healing=0.0f;
+		if (LocalHealing > 0.0f)
+		{
+			float oldHealth=GetHealth();
+			float NewHealth = GetHealth() + LocalHealing;
+			if (oldHealth>0.0f&&NewHealth<GetMaxHealth())
+			{
+				SetHealth(NewHealth);
+			}
+			else if (NewHealth>GetMaxHealth())
+			{
+				SetHealth(GetMaxHealth());
+			}
+		}
+	}
 	
 	
 }
