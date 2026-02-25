@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "CustomEnum.h"
 #include "Components/ActorComponent.h"
+#include "RootMotionModifier.h"
 #include "CombatSystemComp.generated.h"
 
 class UHitboxData;
@@ -49,32 +50,19 @@ public:
 	
 	UFUNCTION(BlueprintCallable)
 	void DoDirectionalRoll(FVector2D InputValue);
-	
+
+	UFUNCTION(BlueprintCallable)
+	ERollAnimationType GetRollDirection(const FVector2D InputDirection);
+
 	/**
-	 * 前为y轴1,后为y轴-1,左为x轴-1，右为x轴1.
-	 * @param InputDirection 
-	 * @param Front 
-	 * @param Back 
-	 * @param Left 
-	 * @param Right 
-	 * @param FrontLeft 
-	 * @param FrontRight 
-	 * @param BackLeft 
-	 * @param BackRight 
+	 * 根据MaxDistance计算出MotionWarping的Target，避免出现无限远吸附的情况
+	 * @param MaxDistance 最大MotionWarping移动距离
+	 * @param TargetLocation 目标的位置
+	 * @param TargetRotation 目标的rotator
+	 * @param WarpTargetName 
 	 * @return 
 	 */
-	UFUNCTION(BlueprintCallable)
-	UAnimMontage* SelectRollMontage(
-		FVector2D InputDirection,
-		UAnimMontage* Front,
-		UAnimMontage* Back,
-		UAnimMontage* Left,
-		UAnimMontage* Right,
-		UAnimMontage* FrontLeft,
-		UAnimMontage* FrontRight,
-		UAnimMontage* BackLeft,
-		UAnimMontage* BackRight);
-	
-	UFUNCTION(BlueprintCallable, Category = "Combat")
-	ERollAnimationType GetRollDirection(const FVector2D InputDirection);
+	UFUNCTION(BlueprintCallable,BlueprintPure)
+	FMotionWarpingTarget CalculateMotionWarpingTarget(float MaxDistance, FVector TargetLocation, FRotator TargetRotation, FName WarpTargetName);
+
 };

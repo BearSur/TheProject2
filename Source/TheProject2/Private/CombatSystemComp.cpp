@@ -27,13 +27,13 @@ UCombatSystemComp::UCombatSystemComp()
 void UCombatSystemComp::BeginPlay()
 {
 	Super::BeginPlay();
-	
+		
 	OwnerCharacter = Cast<ACharacter>(GetOwner());
 	if (OwnerCharacter)
 	{
 		OwnerController=OwnerCharacter->GetController();
 	}
-	
+
 }
 
 
@@ -49,10 +49,11 @@ void UCombatSystemComp::TickComponent(const float DeltaTime, const ELevelTick Ti
 		if (OwnerCharacter->GetController())
 		{
 			//OwnerController->SetControlRotation(TargetRotator);
+			TargetRotator = FRotator(TargetRotator.Roll,TargetRotator.Yaw,OwnerCharacter->GetActorRotation().Pitch);
 			OwnerCharacter->SetActorRotation(TargetRotator);
 		}
 	}
-	else 
+	
 }
 
 
@@ -209,56 +210,6 @@ void UCombatSystemComp::DoDirectionalRoll(FVector2D InputValue)
 	UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(OwnerCharacter, Payload.EventTag, Payload);
 }
 
-UAnimMontage* UCombatSystemComp::SelectRollMontage(const FVector2D InputDirection, UAnimMontage* Front, UAnimMontage* Back,
-                                                   UAnimMontage* Left, UAnimMontage* Right, UAnimMontage* FrontLeft, UAnimMontage* FrontRight, UAnimMontage* BackLeft,
-                                                   UAnimMontage* BackRight)
-{
-	if (InputDirection.IsNearlyZero())
-	{
-		return Front;
-	}
-	
-	FVector2D Dir(InputDirection.X, InputDirection.Y);
-	Dir.Normalize();
-
-
-	float Angle = FMath::RadiansToDegrees(FMath::Atan2(Dir.Y, Dir.X));
-
-
-	if (Angle >= -22.5f && Angle < 22.5f)
-	{
-		return Right;       // 右 (0度附近)
-	}
-	else if (Angle >= 22.5f && Angle < 67.5f)
-	{
-		return FrontRight;  // 右前 (45度附近)
-	}
-	else if (Angle >= 67.5f && Angle < 112.5f)
-	{
-		return Front;       // 前 (90度附近)
-	}
-	else if (Angle >= 112.5f && Angle < 157.5f)
-	{
-		return FrontLeft;   // 左前 (135度附近)
-	}
-	else if (Angle >= -67.5f && Angle < -22.5f)
-	{
-		return BackRight;   // 右后 (-45度附近)
-	}
-	else if (Angle >= -112.5f && Angle < -67.5f)
-	{
-		return Back;        // 后 (-90度附近)
-	}
-	else if (Angle >= -157.5f && Angle < -112.5f)
-	{
-		return BackLeft;    // 左后 (-135度附近)
-	}
-	else
-	{
-		return Left;        // 左 (180或-180度附近，Angle >= 157.5f 或 Angle < -157.5f)
-	}
-}
-
 ERollAnimationType UCombatSystemComp::GetRollDirection(const FVector2D InputDirection)
 {
 	// 如果没有输入，默认返回向前翻滚
@@ -304,4 +255,43 @@ ERollAnimationType UCombatSystemComp::GetRollDirection(const FVector2D InputDire
 	{
 		return ERollAnimationType::Left;        // 左 (180或-180度附近，Angle >= 157.5f 或 Angle < -157.5f)
 	}
+}
+
+FMotionWarpingTarget UCombatSystemComp::CalculateMotionWarpingTarget(float MaxDistance, FVector TargetLocation, FRotator TargetRotation, FName WarpTargetName)
+{
+	FMotionWarpingTarget WarpTarget;
+	WarpTarget.Name = WarpTargetName;
+	WarpTarget.Rotation = TargetRotation;
+	WarpTarget.bFollowComponent = false; 
+	
+	AActor* OwnerActor = GetOwner();
+	
+	if (!OwnerActor)
+	{
+		
+		WarpTarget.Location = TargetLocation;
+		return WarpTarget;
+	}
+
+	/* * 备注：如果你的逻辑严格依赖 ACharacter 特有的属性，可以在这里进行 Cast 强转：
+	 * ACharacter* OwnerCharacter = Cast<ACharacter>(OwnerActor);
+	 * 但因为我们仅仅需要获取位置 (GetActorLocation)，使用原生的 AActor 指针就足够了。
+	 */
+
+	// 3. 获取起点位置
+	FVector StartLocation = OwnerActor->GetActorLocation();
+    
+	// 4. 计算从起点指向目标点的向量
+	FVector Direction = TargetLocation - StartLocation;
+	
+	if (MaxDistance > 0.f && Direction.SizeSquared() > FMath::Square(MaxDistance))
+	{
+		WarpTarget.Location = StartLocation + (Direction.GetSafeNormal() * MaxDistance);
+	}
+	else
+	{
+		WarpTarget.Location = TargetLocation;
+	}
+
+	return WarpTarget;
 }

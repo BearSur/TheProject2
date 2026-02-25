@@ -25,5 +25,13 @@ public:
 	 */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Data")
 	TArray<float> Damage;
+
+	/**
+	 * 用于设置在开启MotionWarping时最大的吸附距离，避免无限距离吸附，过于出戏，小于
+	 */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Data")
+	bool ShouldDoMotionWarping=true;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Data")
+	float MaxMotionWarpingDistance=200.0f;
 	
 };
