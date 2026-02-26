@@ -53,6 +53,10 @@ void UCombatSystemComp::TickComponent(const float DeltaTime, const ELevelTick Ti
 			OwnerCharacter->SetActorRotation(TargetRotator);
 		}
 	}
+	else if (LockPoint)
+	{
+		QuitLockOn();
+	}
 	
 }
 

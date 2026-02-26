@@ -1,7 +1,7 @@
 ﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "BaseAIController.h"
+#include "Public/BaseAIController.h"
 
 #include "BaseAICharacter.h"
 #include "BehaviorTree/BehaviorTree.h"

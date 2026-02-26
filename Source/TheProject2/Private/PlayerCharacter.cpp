@@ -1,6 +1,6 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
-#include "PlayerCharacter.h"
+#include "Public/PlayerCharacter.h"
 
 #include "AbilitySystemComponent.h"
 #include "BaseAttributeSet.h"

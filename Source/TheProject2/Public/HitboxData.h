@@ -14,6 +14,7 @@ class THEPROJECT2_API UHitboxData : public UPrimaryDataAsset
 {
 	GENERATED_BODY()
 public:
+	
 	UPROPERTY(BlueprintReadOnly,EditAnywhere)
 	FName StartSocketName;
 	UPROPERTY(BlueprintReadOnly,EditAnywhere)
