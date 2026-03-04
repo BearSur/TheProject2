@@ -34,4 +34,7 @@ public:
 	UPROPERTY(EditAnywhere,BlueprintReadOnly)
 	TMap<ERollAnimationType,UAnimMontage*> RollAnimationMap;
 	
+	UPROPERTY(EditAnywhere,BlueprintReadOnly)
+	TSubclassOf<UAnimInstance> WeaponAnimInstanceClass;
+	
 };
