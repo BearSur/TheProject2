@@ -66,7 +66,7 @@ APlayerCharacter::APlayerCharacter()
 	StimuliSourceComp->bAutoRegister = true;
 	
 	WeaponMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("WeaponMesh"));
-	
+	WeaponMesh->SetCollisionProfileName(FName("OverlapAll"));
 }
 
 
