@@ -24,8 +24,10 @@ public:
 	 * 少了报错并默认为0
 	 */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Data")
-	TArray<float> Damage;
-
+	TArray<float> Damage{50};
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Data")
+	TArray<float> Poise{210};
+	
 	/**
 	 * 用于设置在开启MotionWarping时最大的吸附距离，避免无限距离吸附，过于出戏，小于
 	 */

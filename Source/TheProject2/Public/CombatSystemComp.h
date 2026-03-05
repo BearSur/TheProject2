@@ -39,7 +39,15 @@ public:
 	void TargetLockOn();
 	UFUNCTION(BlueprintCallable)
 	void QuitLockOn();
-	
+
+
+	/**
+	 * 根据攻击打到的位置来计算出打到了角色的哪一个部位，应该由攻击发起者调用
+	 * 有正面视角的上下左右（别人看你的方向的上下左右）和后面，可以根据这个来播放对应动画
+	 * 计算完后会激活对应的GameplayTag，为：Character.HitState.Up/Down/Left/Right/Back...
+	 * @param HitLocation 攻击打到角色身上的位置，绝对坐标
+	 * @param TargetActor 被攻击的角色
+	 */
 	UFUNCTION(BlueprintCallable)
 	void CalculateHitDirection(FVector HitLocation, AActor* TargetActor);
 

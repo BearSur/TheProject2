@@ -24,28 +24,27 @@ void UBaseAttributeSet::PostGameplayEffectExecute(const struct FGameplayEffectMo
 			float oldHealth=GetHealth();
 			float NewHealth = GetHealth() - LocalDamage;
 			SetHealth(NewHealth);
+			//处理死亡逻辑
 			if (GetHealth()<=0.0f&&oldHealth>0.0f)
 			{
 				//获取杀手和被害者的信息
 				UAbilitySystemComponent* TargetASC = &Data.Target;
-				UAbilitySystemComponent* SourceASC = Data.EffectSpec.GetContext().GetOriginalInstigatorAbilitySystemComponent();
-
+				UAbilitySystemComponent* KillerASC = Data.EffectSpec.GetContext().GetOriginalInstigatorAbilitySystemComponent();
 				if (TargetASC)
 				{
 					// 构建事件负载 Payload
 					FGameplayEventData Payload;
-					Payload.EventTag = FGameplayTag::RequestGameplayTag(FName("Event.Character.Death")); // 确保你在编辑器里创建了这个 Tag
-					Payload.Instigator = SourceASC ? SourceASC->GetAvatarActor() : nullptr;
+					Payload.EventTag = FGameplayTag::RequestGameplayTag(FName("Event.Character.Death")); //确保你在编辑器里创建了这个 Tag
+					Payload.Instigator = KillerASC ? KillerASC->GetAvatarActor() : nullptr;
 					Payload.Target = TargetASC->GetAvatarActor();
 					Payload.ContextHandle = Data.EffectSpec.GetContext();
 					Payload.EventMagnitude = LocalDamage; 
-					UE_LOG(LogTemp,Warning,TEXT("Character Death Trigger Get From AI, remeber to Check!"));
 					
-					UE_LOG(LogTemp, Warning, TEXT("Sending Death Event to Actor: %s with Tag: %s"), 
+					FString DebugMessage = FString::Printf(TEXT("Sending Death Event to Actor: %s with Tag: %s"), 
 						*TargetASC->GetAvatarActor()->GetName(), 
 						*Payload.EventTag.ToString());
+					GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Yellow, DebugMessage);
 					
-					// 发送事件 (Send Gameplay Event)
 					TargetASC->HandleGameplayEvent(Payload.EventTag, &Payload);
 				}
 			}
@@ -71,6 +70,23 @@ void UBaseAttributeSet::PostGameplayEffectExecute(const struct FGameplayEffectMo
 				SetHealth(GetMaxHealth());
 			}
 		}
+	}
+	else if (Data.EvaluatedData.Attribute==GetPoiseDamageAttribute())
+	{
+		const float localPoiseDamage=Data.EvaluatedData.Magnitude;
+		GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red,FString::Printf(TEXT("PoiseDamage: %f, Poise: %f"), localPoiseDamage, GetPoise()));
+		SetPoiseDamage(0);
+		UAbilitySystemComponent* VictimASC = &Data.Target;
+		//poiseDamage大于poise才播放动画
+		if (localPoiseDamage > GetPoise()+100)
+		{
+			VictimASC->AddLooseGameplayTag(FGameplayTag::RequestGameplayTag(FName("Character.HitState.Heavy")));
+		}
+		else if (localPoiseDamage>GetPoise())
+		{
+			VictimASC->AddLooseGameplayTag(FGameplayTag::RequestGameplayTag(FName("Character.HitState.Light")));
+		}
+		
 	}
 	
 	

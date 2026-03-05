@@ -42,12 +42,9 @@ public:
 	UPROPERTY(BlueprintReadOnly, Category = "Attributes")
 	FGameplayAttributeData MaxStamina;
 	ATTRIBUTE_ACCESSORS(UBaseAttributeSet, MaxStamina);
-	/**
-	 * 角色自身的力量值
-	 */
 	UPROPERTY(BlueprintReadOnly,Category = "MetaAttributes")
-	FGameplayAttributeData ImpactResistance=10.0f;
-	ATTRIBUTE_ACCESSORS(UBaseAttributeSet, ImpactResistance);
+	FGameplayAttributeData Poise;
+	ATTRIBUTE_ACCESSORS(UBaseAttributeSet, Poise);
 	
 	//Meta Attribute
 	
@@ -57,10 +54,7 @@ public:
 	UPROPERTY(BlueprintReadOnly,Category = "MetaAttributes")
 	FGameplayAttributeData Healing;
 	ATTRIBUTE_ACCESSORS(UBaseAttributeSet, Healing);
-	/**
-	 * ImpactForce，攻击时传入的力量值
-	 */
 	UPROPERTY(BlueprintReadOnly,Category = "MetaAttributes")
-	FGameplayAttributeData ImpactForce;
-	ATTRIBUTE_ACCESSORS(UBaseAttributeSet, ImpactForce);
+	FGameplayAttributeData PoiseDamage;
+	ATTRIBUTE_ACCESSORS(UBaseAttributeSet, PoiseDamage);
 };

@@ -6,6 +6,7 @@
 #include "GameFramework/Character.h"
 #include "Logging/LogMacros.h"
 #include "AbilitySystemInterface.h" 
+#include "CombatSystem.h"
 #include "PlayerCharacter.generated.h"
 
 class UAIPerceptionStimuliSourceComponent;
@@ -56,6 +57,9 @@ protected:
 	UPROPERTY(VisibleAnywhere,BlueprintReadOnly,Category = "AI")
 	UAIPerceptionStimuliSourceComponent* StimuliSourceComp;
 	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Data")
+	UStaticMeshComponent* WeaponMesh;
+	
 	/** Jump Input Action */
 	UPROPERTY(EditAnywhere, Category="Input")
 	UInputAction* JumpAction;
@@ -89,6 +93,7 @@ protected:
 
 	/** Initialize input action bindings */
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+	
 
 	
 	/** Called for movement input */
@@ -100,6 +105,7 @@ protected:
 public:
 
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
+	
 	
 	/** Handles move inputs from either controls or UI interfaces */
 	UFUNCTION(BlueprintCallable, Category="Input")
