@@ -143,7 +143,6 @@ void UCombatSystemComp::CalculateHitDirection(const FVector HitLocation, AActor*
 		return;
 	}
 	
-	ASC->RemoveLooseGameplayTag(FGameplayTag::RequestGameplayTag(FName("Character.HitState")));
 	
     //  将受击点的绝对坐标转换到角色的本地空间
     // 转换后：中心点为(0,0,0)，X代表前后，Y代表左右，Z代表上下
@@ -225,7 +224,8 @@ void UCombatSystemComp::CalculateHitDirection(const FVector HitLocation, AActor*
             }
         }
     }
-
+	ASC->RemoveLooseGameplayTag(FGameplayTag::RequestGameplayTag(FName("Character.HitState.Heavy")));
+	ASC->RemoveLooseGameplayTag(FGameplayTag::RequestGameplayTag(FName("Character.HitState.Light")));
     // 4. 激活对应的 GameplayTag
     if (HitTag.IsValid())
     {
