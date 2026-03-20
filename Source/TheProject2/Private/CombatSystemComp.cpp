@@ -29,7 +29,6 @@ UCombatSystemComp::UCombatSystemComp()
 void UCombatSystemComp::BeginPlay()
 {
 	Super::BeginPlay();
-		
 	OwnerCharacter = Cast<ACharacter>(GetOwner());
 	if (OwnerCharacter)
 	{
