@@ -2,3 +2,10 @@
 
 
 #include "HitboxData.h"
+
+UHitboxData::UHitboxData()
+{
+	HitboxType = EHitboxType::WeaponSocketSweep;
+	HitboxRadius = 10.0f;
+	FollowSphereOffset = FVector::ZeroVector;
+}

@@ -6,6 +6,13 @@
 #include "Engine/DataAsset.h"
 #include "HitboxData.generated.h"
 
+UENUM(BlueprintType)
+enum class EHitboxType : uint8
+{
+	WeaponSocketSweep UMETA(DisplayName = "Weapon Socket Sweep"),
+	OwnerFollowSphere UMETA(DisplayName = "Owner Follow Sphere")
+};
+
 /**
  * 
  */
@@ -14,15 +21,26 @@ class THEPROJECT2_API UHitboxData : public UPrimaryDataAsset
 {
 	GENERATED_BODY()
 public:
+	UHitboxData();
 	
-	UPROPERTY(BlueprintReadOnly,EditAnywhere)
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Hitbox")
+	EHitboxType HitboxType;
+
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Hitbox",
+		meta = (EditCondition = "HitboxType == EHitboxType::WeaponSocketSweep", EditConditionHides))
 	FName StartSocketName;
-	UPROPERTY(BlueprintReadOnly,EditAnywhere)
+
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Hitbox",
+		meta = (EditCondition = "HitboxType == EHitboxType::WeaponSocketSweep", EditConditionHides))
 	FName EndSocketName;
-	UPROPERTY(BlueprintReadOnly,EditAnywhere)
+
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Hitbox")
 	TArray<TEnumAsByte<EObjectTypeQuery>> HitObjectType;
-	UPROPERTY(BlueprintReadOnly,EditAnywhere)
+
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Hitbox", meta = (ClampMin = "0.0"))
 	float HitboxRadius;
-	
-	
+
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Hitbox",
+		meta = (EditCondition = "HitboxType == EHitboxType::OwnerFollowSphere", EditConditionHides))
+	FVector FollowSphereOffset;
 };

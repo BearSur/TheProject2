@@ -1,14 +1,37 @@
-Binaries
-DerivedDataCache
-Intermediate
-Saved
-.vscode
-.vs
+# 1. 先全部忽略（可选极端方案）
+*
+!*/
+
+# 或者：只忽略你列出的目录（推荐，简单）
+Binaries/
+DerivedDataCache/
+Intermediate/
+Saved/
+
+# IDE
+.vscode/
+.vs/
+
+# 临时文件
 *.VC.db
 *.opensdf
 *.opendb
 *.sdf
-*.sln
 *.suo
+# 平台工程文件（一般不提交）
 *.xcodeproj
 *.xcworkspace
+
+# 反向保留（如果你用了全忽略策略）
+!Source/**
+!Config/**
+!Content/**
+
+# 项目描述文件（关键）
+!*.uproject
+
+# 插件（如果有）
+!Plugins/**
+
+# 如果你有自定义Build脚本
+!Build/**
