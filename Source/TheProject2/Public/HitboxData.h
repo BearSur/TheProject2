@@ -10,7 +10,15 @@ UENUM(BlueprintType)
 enum class EHitboxType : uint8
 {
 	WeaponSocketSweep UMETA(DisplayName = "Weapon Socket Sweep"),
-	OwnerFollowSphere UMETA(DisplayName = "Owner Follow Sphere")
+	OwnerFollowShape UMETA(DisplayName = "Owner Follow Shape")
+};
+
+UENUM(BlueprintType)
+enum class EOwnerFollowHitboxShape : uint8
+{
+	Sphere UMETA(DisplayName = "Sphere"),
+	Box UMETA(DisplayName = "Box"),
+	Cylinder UMETA(DisplayName = "Cylinder")
 };
 
 /**
@@ -41,6 +49,22 @@ public:
 	float HitboxRadius;
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Hitbox",
-		meta = (EditCondition = "HitboxType == EHitboxType::OwnerFollowSphere", EditConditionHides))
-	FVector FollowSphereOffset;
+		meta = (EditCondition = "HitboxType == EHitboxType::OwnerFollowShape", EditConditionHides))
+	EOwnerFollowHitboxShape OwnerFollowShape;
+
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Hitbox",
+		meta = (EditCondition = "HitboxType == EHitboxType::OwnerFollowShape", EditConditionHides))
+	FVector FollowShapeOffset;
+
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Hitbox",
+		meta = (EditCondition = "HitboxType == EHitboxType::OwnerFollowShape && OwnerFollowShape == EOwnerFollowHitboxShape::Box", EditConditionHides))
+	FVector BoxHalfExtent;
+
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Hitbox", meta = (ClampMin = "0.0",
+		EditCondition = "HitboxType == EHitboxType::OwnerFollowShape && OwnerFollowShape == EOwnerFollowHitboxShape::Cylinder", EditConditionHides))
+	float CylinderRadius;
+
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Hitbox", meta = (ClampMin = "0.0",
+		EditCondition = "HitboxType == EHitboxType::OwnerFollowShape && OwnerFollowShape == EOwnerFollowHitboxShape::Cylinder", EditConditionHides))
+	float CylinderHalfHeight;
 };

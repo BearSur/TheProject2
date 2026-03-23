@@ -7,5 +7,9 @@ UHitboxData::UHitboxData()
 {
 	HitboxType = EHitboxType::WeaponSocketSweep;
 	HitboxRadius = 10.0f;
-	FollowSphereOffset = FVector::ZeroVector;
+	OwnerFollowShape = EOwnerFollowHitboxShape::Sphere;
+	FollowShapeOffset = FVector::ZeroVector;
+	BoxHalfExtent = FVector(30.0f, 30.0f, 30.0f);
+	CylinderRadius = 30.0f;
+	CylinderHalfHeight = 60.0f;
 }

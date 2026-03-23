@@ -66,6 +66,29 @@ namespace
 		FVector HitLocation = FVector::ZeroVector;
 	};
 
+	FCollisionObjectQueryParams MakeObjectQueryParams(const TArray<TEnumAsByte<EObjectTypeQuery>>& ObjectTypes)
+	{
+		FCollisionObjectQueryParams ObjectQueryParams;
+
+		for (const TEnumAsByte<EObjectTypeQuery> ObjectType : ObjectTypes)
+		{
+			const ECollisionChannel CollisionChannel = UEngineTypes::ConvertToCollisionChannel(ObjectType);
+			if (CollisionChannel != ECC_OverlapAll_Deprecated)
+			{
+				ObjectQueryParams.AddObjectTypesToQuery(CollisionChannel);
+			}
+		}
+
+		return ObjectQueryParams;
+	}
+
+	bool IsPointInsideOwnerFollowCylinder(const FTransform& ShapeTransform, const FVector& WorldPoint, const float Radius, const float HalfHeight)
+	{
+		const FVector LocalPoint = ShapeTransform.InverseTransformPosition(WorldPoint);
+		const FVector LocalPoint2D(LocalPoint.X, LocalPoint.Y, 0.0f);
+		return LocalPoint2D.SizeSquared() <= FMath::Square(Radius) && FMath::Abs(LocalPoint.Z) <= HalfHeight;
+	}
+
 	USkillData* GetBlueprintCurrentSkill(UObject* SourceObject)
 	{
 		if (!SourceObject)
@@ -419,51 +442,177 @@ void UCombatSystemComp::ResolveHitDetection(UHitboxData* HitboxData)
 			break;
 		}
 
-	case EHitboxType::OwnerFollowSphere:
+	case EHitboxType::OwnerFollowShape:
 		{
-			// 角色跟随型 hitbox：球心使用角色世界变换后的偏移位置，始终跟随角色移动。
-			const FVector SphereCenter = OwnerCharacter->GetActorTransform().TransformPosition(HitboxData->FollowSphereOffset);
-
+			// 角色跟随型 hitbox：统一先算出形状中心和朝向，再根据具体形状执行 overlap。
+			const FTransform ShapeTransform = FTransform(
+				OwnerCharacter->GetActorQuat(),
+				OwnerCharacter->GetActorTransform().TransformPosition(HitboxData->FollowShapeOffset));
+			const FVector ShapeCenter = ShapeTransform.GetLocation();
 			TArray<AActor*> OverlappedActors;
-			UKismetSystemLibrary::SphereOverlapActors(
-				this,
-				SphereCenter,
-				HitboxData->HitboxRadius,
-				HitboxData->HitObjectType,
-				AActor::StaticClass(),
-				ActorsToIgnore,
-				OverlappedActors);
 
-			if (bDrawDebug && GetWorld())
+			switch (HitboxData->OwnerFollowShape)
 			{
-				DrawDebugLine(
-					GetWorld(),
-					OwnerCharacter->GetActorLocation(),
-					SphereCenter,
-					FColor::Cyan,
-					false,
-					DebugDrawTime,
-					0,
-					1.5f);
-
-				DrawDebugSphere(
-					GetWorld(),
-					SphereCenter,
-					HitboxData->HitboxRadius,
-					24,
-					OverlappedActors.Num() > 0 ? FColor::Orange : FColor::Cyan,
-					false,
-					DebugDrawTime,
-					0,
-					1.5f);
-			}
-
-			for (AActor* OverlappedActor : OverlappedActors)
-			{
-				if (IsValid(OverlappedActor))
+			case EOwnerFollowHitboxShape::Sphere:
 				{
-					ResolvedHitTargets.Add({OverlappedActor, ResolveClosestHitLocation(OverlappedActor, SphereCenter)});
+					UKismetSystemLibrary::SphereOverlapActors(
+						this,
+						ShapeCenter,
+						HitboxData->HitboxRadius,
+						HitboxData->HitObjectType,
+						AActor::StaticClass(),
+						ActorsToIgnore,
+						OverlappedActors);
+
+					if (bDrawDebug && GetWorld())
+					{
+						DrawDebugLine(
+							GetWorld(),
+							OwnerCharacter->GetActorLocation(),
+							ShapeCenter,
+							FColor::Cyan,
+							false,
+							DebugDrawTime,
+							0,
+							1.5f);
+
+						DrawDebugSphere(
+							GetWorld(),
+							ShapeCenter,
+							HitboxData->HitboxRadius,
+							24,
+							OverlappedActors.Num() > 0 ? FColor::Orange : FColor::Cyan,
+							false,
+							DebugDrawTime,
+							0,
+							1.5f);
+					}
+
+					for (AActor* OverlappedActor : OverlappedActors)
+					{
+						if (IsValid(OverlappedActor))
+						{
+							ResolvedHitTargets.Add({OverlappedActor, ResolveClosestHitLocation(OverlappedActor, ShapeCenter)});
+						}
+					}
+					break;
 				}
+
+			case EOwnerFollowHitboxShape::Box:
+				{
+					UKismetSystemLibrary::BoxOverlapActors(
+						this,
+						ShapeCenter,
+						HitboxData->BoxHalfExtent,
+						HitboxData->HitObjectType,
+						AActor::StaticClass(),
+						ActorsToIgnore,
+						OverlappedActors);
+
+					if (bDrawDebug && GetWorld())
+					{
+						DrawDebugLine(
+							GetWorld(),
+							OwnerCharacter->GetActorLocation(),
+							ShapeCenter,
+							FColor::Green,
+							false,
+							DebugDrawTime,
+							0,
+							1.5f);
+
+						DrawDebugBox(
+							GetWorld(),
+							ShapeCenter,
+							HitboxData->BoxHalfExtent,
+							OwnerCharacter->GetActorQuat(),
+							OverlappedActors.Num() > 0 ? FColor::Orange : FColor::Green,
+							false,
+							DebugDrawTime,
+							0,
+							1.5f);
+					}
+
+					for (AActor* OverlappedActor : OverlappedActors)
+					{
+						if (IsValid(OverlappedActor))
+						{
+							ResolvedHitTargets.Add({OverlappedActor, ResolveClosestHitLocation(OverlappedActor, ShapeCenter)});
+						}
+					}
+					break;
+				}
+
+			case EOwnerFollowHitboxShape::Cylinder:
+				{
+					if (!GetWorld())
+					{
+						return;
+					}
+
+					FCollisionQueryParams QueryParams(SCENE_QUERY_STAT(ResolveHitDetectionCylinder), false, OwnerCharacter);
+					QueryParams.AddIgnoredActors(ActorsToIgnore);
+
+					TArray<FOverlapResult> OverlapResults;
+					GetWorld()->OverlapMultiByObjectType(
+						OverlapResults,
+						ShapeCenter,
+						OwnerCharacter->GetActorQuat(),
+						MakeObjectQueryParams(HitboxData->HitObjectType),
+						FCollisionShape::MakeCapsule(HitboxData->CylinderRadius, HitboxData->CylinderHalfHeight),
+						QueryParams);
+
+					for (const FOverlapResult& OverlapResult : OverlapResults)
+					{
+						AActor* OverlappedActor = OverlapResult.GetActor();
+						if (!IsValid(OverlappedActor))
+						{
+							continue;
+						}
+
+						const FVector ClosestPoint = ResolveClosestHitLocation(OverlappedActor, ShapeCenter);
+						if (!IsPointInsideOwnerFollowCylinder(ShapeTransform, ClosestPoint, HitboxData->CylinderRadius, HitboxData->CylinderHalfHeight))
+						{
+							continue;
+						}
+
+						ResolvedHitTargets.Add({OverlappedActor, ClosestPoint});
+						OverlappedActors.AddUnique(OverlappedActor);
+					}
+
+					if (bDrawDebug && GetWorld())
+					{
+						const FVector UpVector = OwnerCharacter->GetActorUpVector();
+						const FVector TopCenter = ShapeCenter + UpVector * HitboxData->CylinderHalfHeight;
+						const FVector BottomCenter = ShapeCenter - UpVector * HitboxData->CylinderHalfHeight;
+
+						DrawDebugLine(
+							GetWorld(),
+							OwnerCharacter->GetActorLocation(),
+							ShapeCenter,
+							FColor::Blue,
+							false,
+							DebugDrawTime,
+							0,
+							1.5f);
+
+						DrawDebugCylinder(
+							GetWorld(),
+							BottomCenter,
+							TopCenter,
+							HitboxData->CylinderRadius,
+							24,
+							OverlappedActors.Num() > 0 ? FColor::Orange : FColor::Blue,
+							false,
+							DebugDrawTime,
+							0,
+							1.5f);
+					}
+					break;
+				}
+
+			default:
+				return;
 			}
 			break;
 		}
