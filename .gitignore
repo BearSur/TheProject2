@@ -31,7 +31,7 @@ Saved/
 !*.uproject
 
 # 插件（如果有）
-!Plugins/**
+#!Plugins/**
 
 # 如果你有自定义Build脚本
 !Build/**
